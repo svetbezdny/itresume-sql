@@ -393,3 +393,64 @@
 	from c_orders
 	where date_part('month', date_order) = 8
 ```
+
+# Актуальная информация по сотрудникам
+
+*Напишите запрос, который выведет всех сотрудников на 2020-10-10. Это подразумевает всех сотрудников, которые были наняты до этой даты и все еще работают.*  
+*Отчет должен включать фамилию, имя, отчество сотрудника и название текущей должности.*
+
+```sql
+select
+  last_nm,
+  first_nm,
+  middle_nm,
+  position_nm
+from tinkoff.employees
+left join tinkoff.job using(position_id)
+where hire_dt <= '2020-10-10'
+```
+
+# Отчет о зарплате
+
+*Напишите запрос, который выведет всех актуальных на сегодняшнюю дату сотрудников, имеющих заработную плату в пределах от 20000 до 50000.*   
+*Результат должен включать фамилию (last_nm), имя (first_nm) и отчество (middle_nm) сотрудника (middle_name), а также зарплату и дату приема на работу.*
+
+```sql
+select 
+  last_nm,
+  first_nm,
+  middle_nm,
+  salary,
+  hire_dt
+from tinkoff.employees
+left join tinkoff.job using(position_id)
+where salary between 20000 and 50000
+  and valid_to_dttm > current_date
+```
+
+# Полное имя и дата рождения сотрудника
+
+*Напишите запрос, который выведет полное имя сотрудников и даты их рождения.*  
+*Соедините фамилию(last_nm), имя (first_nm) и отчество (middle_nm) в один столбец с названием fio, разделите фамилию, имя и отчество дефисами.*
+
+```sql
+select 
+  concat_ws(' - ', last_nm, first_nm, middle_nm) as fio,
+  birth_date
+from tinkoff.employees
+```
+
+# Звонки по дням
+
+*Напишите запрос, который посчитает количество звонков, сделанных между 2020-10-01 и сегодняшним днем.*   
+*Полученная таблица должна состоять из двух столбцов: date и cnt_calls.*   
+*В столбце date должен находиться день вызова (без времени), а в столбце "cnt_calls" должно отображаться количество звонков, совершенных в этот день.*
+
+```sql
+select 
+  start_dttm as "date",
+  count(*) as cnt_calls
+from tinkoff.calls
+where start_dttm between '2020-10-01' and current_date
+group by 1
+```

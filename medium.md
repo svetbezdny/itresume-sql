@@ -688,3 +688,24 @@ select *,
 from t
 order by id_customer, date_order
 ```
+
+## Построить когорту
+
+*Построить когорты по месяцу первой покупки и месяцам последующих покупок.*  
+*Нам надо найти количество клиентов, которые совершили первую покупку в один и тот же месяц, а затем смотреть, сколько пользователей сделали покупки в последующие месяца.*
+
+```sql
+select 
+  count(distinct id_customer)as count_user,
+  month_first_order,
+  month_order, 
+  (date_part('year', month_order) - date_part('year', month_first_order)) * 12 +
+    (date_part('month', month_order) - date_part('month', month_first_order)) as month_diff
+from (
+	select 
+	  id_customer,
+	  min(date_trunc('month', date_order)) over(partition by id_customer) as month_first_order,
+	  date_trunc('month', date_order) as month_order
+	from C_ORDERS )t
+group by month_order, month_first_order
+```
